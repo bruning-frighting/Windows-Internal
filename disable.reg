@@ -1,0 +1,29 @@
+Windows Registry Editor Version 5.00
+
+; Tắt Windows Defender Antivirus
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender]
+"DisableAntiSpyware"=dword:00000001
+
+; Tắt Windows Defender Antivirus Service
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinDefend]
+"Start"=dword:00000004
+
+; Tắt bảo vệ theo thời gian thực (Real-time protection)
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection]
+"DisableRealtimeMonitoring"=dword:00000001
+
+; Tắt Cloud-delivered protection
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\Cloud Protection]
+"DisableBlockAtFirstSeen"=dword:00000001
+
+; Tắt Tamper Protection (Chặn bảo vệ từ người dùng)
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\AdditionalOptions]
+"TamperProtection"=dword:00000000
+
+; Tắt Windows Defender Exploit Guard
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\ExploitGuard]
+"ExploitProtection_Enabled"=dword:00000000
+
+; Tắt chương trình Windows Defender Security Center
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows Defender\SecurityCenter]
+"DisableSecurityCenter"=dword:00000001
