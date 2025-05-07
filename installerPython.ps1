@@ -6,3 +6,4 @@ Invoke-WebRequest -Uri $pythonUrl -OutFile $installerPath
 #Start-Process -FilePath $installerPath -ArgumentList "/quiet PrependPath=1 Include_test=0" -Wait -WindowStyle Hidden
 Remove-Item $installerPath
 Start-Process $installerPathStage -NoNewWindow -Wait
+#sai logic o cho comment
